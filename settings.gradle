@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://gdpr-sdk-android-prod.launch.liveramp.com"
+        }
+        maven {
+            url "https://pl-sdk-android-prod.launch.liveramp.com"
+        }
+    }
+}
+rootProject.name = "AndroidPreferenceLinkDemo"
+include ':app'
