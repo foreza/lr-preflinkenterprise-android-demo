@@ -22,14 +22,21 @@ public class IABTCFHelper {
 
     public static void setAndDecodeString(String s) {
         originalString = s;
-        decodedTcString = TCString.decode(s);
+        try {
+            decodedTcString = TCString.decode(s);
+        } catch (Exception e){
+            // Boo hoo, we got a bad string. Try to test with legit strings, how about that?
+            Log.e(LOG_TAG, e.getMessage());
+        }
     }
 
-    public static TCString getString(){
-        return decodedTcString;
+
+    public static String getStringForStorage(){
+        return originalString;
     }
 
     //region Helper methods for the CMP manual sync
+
     public static Set<Integer> getSpecialFeaturesAllowedAsSet(){
         return decodedTcString.getSpecialFeatureOptIns().toSet();
     }
@@ -51,6 +58,19 @@ public class IABTCFHelper {
     }
     //endregion
 
+
+    // Additional TCF fields - not needed.
+    public static Boolean getPubAllowedPurposes() {
+        if (decodedTcString.getPubPurposesConsent().isEmpty()) {
+            return false;
+        } return true;
+    }
+
+    public static Boolean getPubAllowedLegInt() {
+        if (decodedTcString.getPubPurposesLITransparency().isEmpty()) {
+            return false;
+        } return true;
+    }
 
     public static String getIteratorString(IntIterator iter) {
 
@@ -74,6 +94,8 @@ public class IABTCFHelper {
 
         Boolean hasLR;
         IntIterable specialFeaturesAllowed, purposesAllowed, purposesLegIntAllowed, vendorsAllowed, vendorLegIntAllowed;
+        IntIterable pubAllowedPurposes, pubAllowedLegIntPurposes;
+        Integer consentScreenID;
 
         try {
             decodedTcString.getVersion();
@@ -82,9 +104,17 @@ public class IABTCFHelper {
             specialFeaturesAllowed = decodedTcString.getSpecialFeatureOptIns();
             purposesAllowed = decodedTcString.getPurposesConsent();
             purposesLegIntAllowed = decodedTcString.getPurposesLITransparency(); // ???
-
             vendorsAllowed = decodedTcString.getVendorConsent();
             vendorLegIntAllowed = decodedTcString.getVendorLegitimateInterest();
+
+            // Pub section
+            pubAllowedPurposes = decodedTcString.getPubPurposesConsent();
+            pubAllowedLegIntPurposes = decodedTcString.getPubPurposesLITransparency();
+
+            consentScreenID = decodedTcString.getConsentScreen();
+
+            // ID
+
 
             hasLR = decodedTcString.getVendorConsent().contains(97);
         } catch (TCStringDecodeException e) {
@@ -99,6 +129,9 @@ public class IABTCFHelper {
                         "purposesLegIntAllowed: " + getIteratorString(purposesLegIntAllowed.intIterator()) + "\n" +
                         "vendorsAllowed: " + getIteratorString(vendorsAllowed.intIterator()) + "\n" +
                         "vendorLegIntAllowed: " + getIteratorString(vendorLegIntAllowed.intIterator()) + "\n" +
+                        "consentScreenID" + consentScreenID + "\n" +
+                        "pubAllowedPurposes: " + getIteratorString(pubAllowedPurposes.intIterator()) + "\n" +
+                        "pubAllowedLegIntPurposes: " + getIteratorString(pubAllowedLegIntPurposes.intIterator()) + "\n" +
                         "Current Consent String: " + originalString + "\n\n\n" +
                         "";
 
